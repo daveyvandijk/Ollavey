@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama Chat Interface</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markup.min.js"></script>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>Ollavey Chat</h1>
+            <div class="settings">
+                <div class="theme-selector">
+                    <label for="theme">Theme:</label>
+                    <select id="theme">
+                        <option value="default">Default Blue</option>
+                        <option value="dark">Dark Mode</option>
+                        <option value="forest">Forest Green</option>
+                        <option value="sunset">Sunset Orange</option>
+                        <option value="purple">Royal Purple</option>
+                    </select>
+                </div>
+                <div class="personality-selector">
+                    <label for="personality">Personality:</label>
+                    <select id="personality">
+                        <option value="default">Normal</option>
+                        <option value="nerd">Super Nerd 🤓</option>
+                        <option value="mario">Mario 🍄</option>
+                        <option value="pirate">Pirate ☠️</option>
+                        <option value="yoda">Yoda 🧙‍♂️</option>
+                        <option value="kawaii">Kawaii (⁠◕⁠ᴗ⁠◕⁠✿)</option>
+                        <option value="custom">Custom ✨</option>
+                    </select>
+                    <div id="custom-personality-container" style="display: none; visibility: visible; position: relative;">
+                        <textarea id="custom-personality" 
+                                placeholder="Beschrijf hier hoe je wilt dat de AI zich gedraagt..."
+                                rows="3" 
+                                style="width: 100%;"></textarea>
+                        <div class="personality-actions" style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                            <button id="save-personality" style="flex-grow: 1; margin-right: 10px;">Opslaan</button>
+                            <button id="delete-personality" style="background-color: red; color: white; padding: 10px; border: 2px solid black; flex-grow: 1; display: none;">
+                                Verwijderen 🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Hier komen de berichten -->
+        </div>
+        <div class="chat-input">
+            <textarea id="user-input" placeholder="Stel je vraag hier..." rows="3"></textarea>
+            <button id="send-button">Verstuur</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sendButton = document.getElementById('send-button');
+            const userInput = document.getElementById('user-input');
+            const personalitySelect = document.getElementById('personality');
+            const customPersonalityContainer = document.getElementById('custom-personality-container');
+            const customPersonalityTextarea = document.getElementById('custom-personality');
+            const savePersonalityBtn = document.getElementById('save-personality');
+            const deletePersonalityBtn = document.getElementById('delete-personality');
+
+            console.log('Send button:', sendButton);
+            console.log('User input:', userInput);
+
+            if (sendButton) {
+                sendButton.addEventListener('click', () => {
+                    console.log('Send button clicked!');
+                    console.log('User input value:', userInput.value);
+                });
+            } else {
+                console.error('Send button not found!');
+            }
+
+            // Load saved personalities from localStorage
+            function loadSavedPersonalities() {
+                const savedPersonalities = JSON.parse(localStorage.getItem('savedPersonalities') || '[]');
+                
+                console.log('🔄 Loading Saved Personalities:', savedPersonalities);
+                
+                // Remove any existing custom saved personalities
+                const existingCustomOptions = personalitySelect.querySelectorAll('.custom-saved-personality');
+                existingCustomOptions.forEach(option => option.remove());
+
+                // Add saved personalities to the dropdown
+                savedPersonalities.forEach((personality, index) => {
+                    const newOption = document.createElement('option');
+                    newOption.value = personality.prompt;  // Store the full prompt as value
+                    newOption.text = personality.name;     // Display name in dropdown
+                    
+                    // Explicitly add the class and data attribute
+                    newOption.classList.add('custom-saved-personality');
+                    newOption.dataset.index = index;
+                    
+                    console.log('➕ Adding Personality Option:', {
+                        text: newOption.text,
+                        value: newOption.value,
+                        classList: Array.from(newOption.classList),
+                        dataIndex: newOption.dataset.index
+                    });
+                    
+                    // Insert before the 'custom' option
+                    const customOption = personalitySelect.querySelector('option[value="custom"]');
+                    personalitySelect.insertBefore(newOption, customOption);
+                });
+
+                console.log('📋 Personality Select After Loading:', 
+                    Array.from(personalitySelect.options).map(opt => ({
+                        text: opt.text,
+                        value: opt.value,
+                        classList: Array.from(opt.classList)
+                    }))
+                );
+            }
+
+            // Visibility debugging function
+            function debugDeleteButtonVisibility() {
+                console.group('🔍 Delete Button Visibility Debug');
+                console.log('Delete Button Element:', deletePersonalityBtn);
+                console.log('Button Visibility Details:', {
+                    display: deletePersonalityBtn.style.display,
+                    computedDisplay: window.getComputedStyle(deletePersonalityBtn).display,
+                    offsetParent: deletePersonalityBtn.offsetParent,
+                    offsetWidth: deletePersonalityBtn.offsetWidth,
+                    offsetHeight: deletePersonalityBtn.offsetHeight,
+                    parentContainerDisplay: window.getComputedStyle(customPersonalityContainer).display
+                });
+                console.groupEnd();
+            }
+
+            // Personality selection change handler
+            personalitySelect.addEventListener('change', (event) => {
+                const selectedIndex = personalitySelect.selectedIndex;
+                const selectedOption = personalitySelect.options[selectedIndex];
+
+                console.log('🔄 Personality Selection Changed');
+                console.log('Selected Option:', {
+                    text: selectedOption.text,
+                    value: selectedOption.value,
+                    isCustomSaved: selectedOption.classList.contains('custom-saved-personality')
+                });
+
+                // Check if it's a saved custom personality
+                const isCustomSaved = selectedOption.classList.contains('custom-saved-personality');
+                
+                if (isCustomSaved) {
+                    console.log('🟢 Showing Custom Personality');
+                    customPersonalityContainer.style.display = 'block';
+                    deletePersonalityBtn.style.display = 'block';
+                    customPersonalityTextarea.value = selectedOption.value;
+                    
+                    // Debug visibility
+                    debugDeleteButtonVisibility();
+                } else if (personalitySelect.value === 'custom') {
+                    console.log('🟡 Showing Custom Personality Input');
+                    customPersonalityContainer.style.display = 'block';
+                    deletePersonalityBtn.style.display = 'none';
+                    customPersonalityTextarea.value = '';
+                } else {
+                    console.log('🔴 Hiding Custom Personality');
+                    customPersonalityContainer.style.display = 'none';
+                    deletePersonalityBtn.style.display = 'none';
+                    customPersonalityTextarea.value = '';
+                }
+            });
+
+            // Modify delete button event to be more robust
+            deletePersonalityBtn.addEventListener('click', () => {
+                const selectedIndex = personalitySelect.selectedIndex;
+                const selectedOption = personalitySelect.options[selectedIndex];
+
+                console.log('🗑️ Delete Button Clicked:', {
+                    selectedIndex: selectedIndex,
+                    selectedOptionText: selectedOption.text,
+                    selectedOptionValue: selectedOption.value,
+                    selectedOptionClasses: Array.from(selectedOption.classList),
+                    isCustomSavedClass: selectedOption.classList.contains('custom-saved-personality')
+                });
+
+                // Ensure it's a custom saved personality
+                if (selectedOption.classList.contains('custom-saved-personality')) {
+                    const index = parseInt(selectedOption.dataset.index);
+                    
+                    // Confirm deletion
+                    if (confirm(`Weet je zeker dat je de persoonlijkheid "${selectedOption.text}" wilt verwijderen?`)) {
+                        // Get saved personalities
+                        const savedPersonalities = JSON.parse(localStorage.getItem('savedPersonalities') || '[]');
+                        
+                        console.log('🔍 Saved Personalities Before Deletion:', savedPersonalities);
+                        
+                        // Remove the personality at the specified index
+                        savedPersonalities.splice(index, 1);
+                        
+                        console.log('🗑️ Saved Personalities After Deletion:', savedPersonalities);
+                        
+                        // Save updated personalities
+                        localStorage.setItem('savedPersonalities', JSON.stringify(savedPersonalities));
+                        
+                        // Reload saved personalities
+                        loadSavedPersonalities();
+                        
+                        // Reset to default
+                        personalitySelect.value = 'default';
+                        personalitySelect.dispatchEvent(new Event('change'));
+                    }
+                } else {
+                    console.error('❌ Cannot delete - not a saved personality');
+                    alert('Kan deze persoonlijkheid niet verwijderen.');
+                }
+            });
+
+            // Save custom personality
+            savePersonalityBtn.addEventListener('click', () => {
+                const customPersonality = customPersonalityTextarea.value.trim();
+                
+                if (customPersonality) {
+                    // Check if we're editing an existing personality
+                    const selectedOption = personalitySelect.options[personalitySelect.selectedIndex];
+                    const isEditing = selectedOption.classList.contains('custom-saved-personality');
+                    
+                    // Prompt user for a name
+                    const personalityName = prompt(
+                        isEditing 
+                        ? 'Wijzig de naam van deze persoonlijkheid:' 
+                        : 'Geef een naam aan deze persoonlijkheid:', 
+                        isEditing ? selectedOption.text : ''
+                    );
+                    
+                    if (personalityName) {
+                        // Get existing saved personalities
+                        const savedPersonalities = JSON.parse(localStorage.getItem('savedPersonalities') || '[]');
+                        
+                        if (isEditing) {
+                            // Update existing personality
+                            const index = parseInt(selectedOption.dataset.index);
+                            savedPersonalities[index] = {
+                                name: personalityName,
+                                prompt: customPersonality
+                            };
+                        } else {
+                            // Add new personality
+                            savedPersonalities.push({
+                                name: personalityName,
+                                prompt: customPersonality
+                            });
+                        }
+                        
+                        // Save to localStorage
+                        localStorage.setItem('savedPersonalities', JSON.stringify(savedPersonalities));
+                        
+                        // Reload saved personalities in dropdown
+                        loadSavedPersonalities();
+                        
+                        // Select the personality
+                        personalitySelect.value = customPersonality;
+                        
+                        // Hide custom personality container
+                        customPersonalityContainer.style.display = 'none';
+                        
+                        // Clear textarea
+                        customPersonalityTextarea.value = '';
+                        
+                        // Trigger change event
+                        personalitySelect.dispatchEvent(new Event('change'));
+                    }
+                } else {
+                    alert('Vul een beschrijving in voor de persoonlijkheid');
+                }
+            });
+
+            // Initial load of saved personalities
+            loadSavedPersonalities();
+        });
+    </script>
+</body>
+</html>
