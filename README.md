@@ -3,7 +3,7 @@
 ## Overview
 A dynamic, interactive AI chat application that allows users to engage with multiple AI personalities and create custom conversation styles.
 
-![Project Demo Screenshot](screenShotOllavey)
+![Project Demo Screenshot](screenShotOllavey.png)
 
 ## 🌟 Features
 
