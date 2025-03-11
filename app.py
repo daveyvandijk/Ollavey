@@ -45,6 +45,7 @@ def chat():
         user_message = data.get('message', '')
         personality = data.get('personality', 'default')
         custom_personality = data.get('customPersonality', '')
+        model = data.get('model', 'llama2')  # Get the selected model from the request
 
         # Bepaal welke persoonlijkheids-prompt we moeten gebruiken
         if personality == 'custom' and custom_personality:
@@ -63,7 +64,7 @@ def chat():
         response = requests.post(
             OLLAMA_API_URL,
             json={
-                "model": "llama3",
+                "model": model,  # Use the selected model
                 "prompt": full_prompt,
                 "stream": False
             }

@@ -13,32 +13,50 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-markup.min.js"></script>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <h1>Ollavey Chat</h1>
-            <div class="settings">
-                <div class="theme-selector">
-                    <label for="theme">Theme:</label>
-                    <select id="theme">
-                        <option value="default">Default Blue</option>
-                        <option value="dark">Dark Mode</option>
-                        <option value="forest">Forest Green</option>
-                        <option value="sunset">Sunset Orange</option>
-                        <option value="purple">Royal Purple</option>
-                    </select>
+    <div class="main-container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>Ollavey Chat</h1>
+                <button id="toggle-settings" class="toggle-settings-button">⚙️</button>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <!-- Hier komen de berichten -->
+            </div>
+            <div class="chat-input">
+                <textarea id="user-input" placeholder="Stel je vraag hier..." rows="3"></textarea>
+                <button id="send-button">Verstuur</button>
+            </div>
+        </div>
+        <div class="settings-container" id="settings-container">
+            <div class="buttons">
+                <button id="theme-button">Theme</button>
+                <div id="theme-options" class="theme-options" style="display: none;">
+                    <div class="theme-selector">
+                        <label for="theme">Theme:</label>
+                        <select id="theme">
+                            <option value="default">Default Blue</option>
+                            <option value="dark">Dark Mode</option>
+                            <option value="forest">Forest Green</option>
+                            <option value="sunset">Sunset Orange</option>
+                            <option value="purple">Royal Purple</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="personality-selector">
-                    <label for="personality">Personality:</label>
-                    <select id="personality">
-                        <option value="default">Normal</option>
-                        <option value="nerd">Super Nerd 🤓</option>
-                        <option value="mario">Mario 🍄</option>
-                        <option value="pirate">Pirate ☠️</option>
-                        <option value="yoda">Yoda 🧙‍♂️</option>
-                        <option value="kawaii">Kawaii (⁠◕⁠ᴗ⁠◕⁠✿)</option>
-                        <option value="custom">Custom ✨</option>
-                    </select>
-                    <div id="custom-personality-container" style="display: none; visibility: visible; position: relative;">
+                <button id="personality-button">Personality</button>
+                <div id="personality-options" class="personality-options" style="display: none;">
+                    <div class="personality-selector">
+                        <label for="personality">Personality:</label>
+                        <select id="personality">
+                            <option value="default">Normal</option>
+                            <option value="nerd">Super Nerd 🤓</option>
+                            <option value="mario">Mario 🍄</option>
+                            <option value="pirate">Pirate ☠️</option>
+                            <option value="yoda">Yoda 🧙‍♂️</option>
+                            <option value="kawaii">Kawaii (⁠◕⁠ᴗ⁠◕⁠✿)</option>
+                            <option value="custom">Custom ✨</option>
+                        </select>
+                    </div>
+                    <div id="custom-personality-container" style="display: none;">
                         <textarea id="custom-personality" 
                                 placeholder="Beschrijf hier hoe je wilt dat de AI zich gedraagt..."
                                 rows="3" 
@@ -51,14 +69,19 @@
                         </div>
                     </div>
                 </div>
+                <button id="model-button">Model</button>
+                <div id="model-options" class="model-options" style="display: none;">
+                    <div class="model-selector">
+                        <label for="model">Model:</label>
+                        <select id="model">
+                            <option value="llama2">Llama 2</option>
+                            <option value="llama3">Llama 3</option>
+                            <option value="llama2-uncensored:latest">Llama 2 Uncensored</option>
+                            <!-- Add more models as needed -->
+                        </select>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="chat-messages" id="chat-messages">
-            <!-- Hier komen de berichten -->
-        </div>
-        <div class="chat-input">
-            <textarea id="user-input" placeholder="Stel je vraag hier..." rows="3"></textarea>
-            <button id="send-button">Verstuur</button>
         </div>
     </div>
     <script src="script.js"></script>
@@ -71,6 +94,8 @@
             const customPersonalityTextarea = document.getElementById('custom-personality');
             const savePersonalityBtn = document.getElementById('save-personality');
             const deletePersonalityBtn = document.getElementById('delete-personality');
+            const toggleSettingsButton = document.getElementById('toggle-settings');
+            const settingsContainer = document.getElementById('settings-container');
 
             console.log('Send button:', sendButton);
             console.log('User input:', userInput);
@@ -82,6 +107,18 @@
                 });
             } else {
                 console.error('Send button not found!');
+            }
+
+            if (toggleSettingsButton) {
+                toggleSettingsButton.addEventListener('click', () => {
+                    if (settingsContainer.style.display === 'none' || settingsContainer.style.display === '') {
+                        settingsContainer.style.display = 'block';
+                    } else {
+                        settingsContainer.style.display = 'none';
+                    }
+                });
+            } else {
+                console.error('Toggle settings button not found!');
             }
 
             // Load saved personalities from localStorage
@@ -100,7 +137,6 @@
                     newOption.value = personality.prompt;  // Store the full prompt as value
                     newOption.text = personality.name;     // Display name in dropdown
                     
-                    // Explicitly add the class and data attribute
                     newOption.classList.add('custom-saved-personality');
                     newOption.dataset.index = index;
                     

@@ -10,6 +10,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const customPersonalityInput = document.getElementById('custom-personality');  // Update custom personality input selector
     const savePersonalityButton = document.getElementById('save-personality');  // Update custom personality input selector
 
+    const themeButton = document.getElementById('theme-button');
+    const themeOptions = document.getElementById('theme-options');
+    const personalityButton = document.getElementById('personality-button');
+    const personalityOptions = document.getElementById('personality-options');
+    const modelButton = document.getElementById('model-button');
+    const modelOptions = document.getElementById('model-options');
+    const personalitySelect = document.getElementById('personality');
+    const deletePersonalityButton = document.getElementById('delete-personality');
+    const toggleSettingsButton = document.getElementById('toggle-settings');
+    const settingsContainer = document.getElementById('settings-container');
+
+    themeButton.addEventListener('click', () => {
+        themeOptions.style.display = themeOptions.style.display === 'none' ? 'block' : 'none';
+        personalityOptions.style.display = 'none';
+        modelOptions.style.display = 'none';
+    });
+
+    personalityButton.addEventListener('click', () => {
+        themeOptions.style.display = 'none';
+        personalityOptions.style.display = personalityOptions.style.display === 'none' ? 'block' : 'none';
+        modelOptions.style.display = 'none';
+    });
+
+    modelButton.addEventListener('click', () => {
+        themeOptions.style.display = 'none';
+        personalityOptions.style.display = 'none';
+        modelOptions.style.display = modelOptions.style.display === 'none' ? 'block' : 'none';
+    });
+
+    personalitySelect.addEventListener('change', (e) => {
+        if (e.target.value === 'custom') {
+            customPersonalityContainer.style.display = 'block';
+        } else {
+            customPersonalityContainer.style.display = 'none';
+        }
+    });
+
     // Laad opgeslagen thema of gebruik standaard
     const savedTheme = localStorage.getItem('chatTheme') || 'default';
     document.body.setAttribute('data-theme', savedTheme);
@@ -54,6 +91,33 @@ document.addEventListener('DOMContentLoaded', () => {
         if (customPersonality) {
             localStorage.setItem('customPersonality', customPersonality);
             addMessage('Custom persoonlijkheid opgeslagen! 🎉', false);
+            
+            // Add the new custom personality to the select options
+            const newOption = document.createElement('option');
+            newOption.value = customPersonality;
+            newOption.text = customPersonality;
+            newOption.classList.add('custom-saved-personality');
+            personalitySelect.insertBefore(newOption, personalitySelect.querySelector('option[value="custom"]'));
+            
+            // Select the new custom personality
+            personalitySelect.value = customPersonality;
+            personalitySelect.dispatchEvent(new Event('change'));
+        }
+    });
+
+    // Toggle settings container with animation
+    toggleSettingsButton.addEventListener('click', () => {
+        toggleSettingsButton.classList.add('rotate');
+        setTimeout(() => {
+            toggleSettingsButton.classList.remove('rotate');
+        }, 500);
+
+        if (settingsContainer.classList.contains('open')) {
+            settingsContainer.classList.remove('open');
+            settingsContainer.classList.add('close');
+        } else {
+            settingsContainer.classList.remove('close');
+            settingsContainer.classList.add('open');
         }
     });
 
@@ -227,5 +291,14 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();  // Voorkom nieuwe regel
             sendButton.click();  // Doe alsof er op de verzendknop is geklikt
         }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleSettingsButton = document.getElementById('toggle-settings');
+    const settingsContainer = document.getElementById('settings-container');
+
+    toggleSettingsButton.addEventListener('click', () => {
+        settingsContainer.classList.toggle('open');
     });
 });

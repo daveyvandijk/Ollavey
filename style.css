@@ -74,18 +74,81 @@ body {
     color: var(--text-color);
 }
 
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Center items vertically */
+    width: 100%;
+    height: 100vh;
+    padding: 20px;
+    gap: 20px; /* Add a gap between chat-container and settings-container */
+}
+
 .chat-container {
-    width: 90%;
+    width: 70%;
     max-width: 800px;
-    height: 80vh;
+    height: 80%; /* Adjust height to fit within the viewport */
     background-color: var(--container-bg);
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
+    z-index: 1; /* Ensure the chat container is above the settings container */
+}
+
+.settings-container {
+    width: 30%;
+    max-width: 300px;
+    height: 80%; /* Match the height of the chat container */
+    background-color: var(--container-bg);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+    overflow-y: auto; /* Ensure content stays within the container */
+    transition: transform 0.3s ease;
+    animation-duration: 0.3s;
+    animation-fill-mode: both;
+    position: relative; /* Position the settings container relative */
+}
+
+.settings-container.open {
+    transform: translateX(-calc(100% + 10px));
+    animation-name: slideIn;
+    right: 20px; /* Slide it in when open */
+}
+
+.settings-container.close {
+    transform: translateX(0);
+    animation-name: slideOut;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.buttons button {
+    padding: 10px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.buttons button:hover {
+    background-color: var(--button-hover);
 }
 
 .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Ensure the settings button is aligned to the right */
     padding: 20px;
     border-bottom: 1px solid var(--input-border);
 }
@@ -97,21 +160,24 @@ body {
 }
 
 .theme-selector,
-.personality-selector {
+.personality-selector,
+.model-selector {
     display: flex;
     align-items: center;
     gap: 40px;
 }
 
 .theme-selector label,
-.personality-selector label {
+.personality-selector label,
+.model-selector label {
     color: var(--text-color);
     font-weight: bold;
     white-space: nowrap;
 }
 
 .theme-selector select,
-.personality-selector select {
+.personality-selector select,
+.model-selector select {
     padding: 8px 12px;
     border-radius: 5px;
     border: 1px solid var(--input-border);
@@ -123,12 +189,14 @@ body {
 }
 
 .theme-selector select:hover,
-.personality-selector select:hover {
+.personality-selector select:hover,
+.model-selector select:hover {
     border-color: var(--primary-color);
 }
 
 .theme-selector select:focus,
-.personality-selector select:focus {
+.personality-selector select:focus,
+.model-selector select:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
@@ -239,6 +307,18 @@ body {
     gap: 10px;
     width: 100%;
     max-width: 250px;
+    animation-duration: 0.3s;
+    animation-fill-mode: both;
+}
+
+#custom-personality-container.show {
+    display: flex;
+    animation-name: fadeIn;
+}
+
+#custom-personality-container.hide {
+    display: none;
+    animation-name: fadeOut;
 }
 
 #custom-personality {
@@ -292,4 +372,91 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--button-hover);
+}
+
+.toggle-settings-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--primary-color);
+    transition: color 0.2s;
+}
+
+.toggle-settings-button:hover {
+    color: var(--button-hover);
+}
+
+.toggle-settings-button.rotate {
+    animation: rotate 0.5s linear;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(100%);
+    }
+}
+
+.theme-options,
+.personality-options,
+.model-options {
+    animation-duration: 0.3s;
+    animation-fill-mode: both;
+}
+
+.theme-options.show,
+.personality-options.show,
+.model-options.show {
+    display: block;
+    animation-name: fadeIn;
+}
+
+.theme-options.hide,
+.personality-options.hide,
+.model-options.hide {
+    display: none;
+    animation-name: fadeOut;
 }
