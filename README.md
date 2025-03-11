@@ -25,6 +25,9 @@ A dynamic, interactive AI chat application that allows users to engage with mult
 - Clean, modern web interface
 - Works on desktop and mobile browsers
 
+### Settings Menu
+- The settings menu is closed by default and can be toggled using the ⚙️ button.
+
 ## 🛠 Technologies Used
 - Frontend: HTML, CSS, JavaScript
 - Backend: Python (Flask)
@@ -61,7 +64,6 @@ python app.py
 ## 🔧 Configuration
 - Modify `app.py` to customize backend settings
 - Edit `script.js` to add more personalities or change behavior
-
 
 ## 📝 Roadmap
 - [ ] Add more pre-defined personalities
