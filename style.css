@@ -77,29 +77,29 @@ body {
 .main-container {
     display: flex;
     justify-content: center;
-    align-items: center; /* Center items vertically */
+    align-items: center;
     width: 100%;
     height: 100vh;
     padding: 20px;
-    gap: 20px; /* Add a gap between chat-container and settings-container */
+    gap: 20px; 
 }
 
 .chat-container {
     width: 70%;
     max-width: 800px;
-    height: 80%; /* Adjust height to fit within the viewport */
+    height: 80%; 
     background-color: var(--container-bg);
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
-    z-index: 1; /* Ensure the chat container is above the settings container */
+    z-index: 1; 
 }
 
 .settings-container {
     width: 30%;
     max-width: 300px;
-    height: 80%; /* Match the height of the chat container */
+    height: 80%; 
     background-color: var(--container-bg);
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -107,17 +107,17 @@ body {
     flex-direction: column;
     padding: 20px;
     gap: 20px;
-    overflow-y: auto; /* Ensure content stays within the container */
+    overflow-y: auto; 
     transition: transform 0.3s ease;
     animation-duration: 0.3s;
     animation-fill-mode: both;
-    position: relative; /* Position the settings container relative */
+    position: relative; 
 }
 
 .settings-container.open {
     transform: translateX(-calc(100% + 10px));
     animation-name: slideIn;
-    right: 20px; /* Slide it in when open */
+    right: 20px; 
 }
 
 .settings-container.close {
@@ -148,7 +148,7 @@ body {
 .chat-header {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Ensure the settings button is aligned to the right */
+    justify-content: space-between;
     padding: 20px;
     border-bottom: 1px solid var(--input-border);
 }
@@ -356,7 +356,6 @@ body {
     background-color: var(--button-hover);
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -459,4 +458,40 @@ body {
 .model-options.hide {
     display: none;
     animation-name: fadeOut;
+}
+
+.model-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.model-selector label {
+    color: var(--text-color);
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.model-selector select,
+.model-selector input {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--input-border);
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.model-selector select:hover,
+.model-selector input:hover {
+    border-color: var(--primary-color);
+}
+
+.model-selector select:focus,
+.model-selector input:focus {
+    outline: none;
+    border-color: var (--primary-color);
+    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
 }

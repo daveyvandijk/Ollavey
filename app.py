@@ -1,17 +1,12 @@
-# Importeer de benodigde libraries
-from flask import Flask, request, jsonify  # Flask voor de webserver
-from flask_cors import CORS               # CORS voor communicatie tussen frontend en backend
-import requests                          # requests voor communicatie met Ollama
+from flask import Flask, request, jsonify  
+from flask_cors import CORS               
+import requests                          
 
-# Maak een nieuwe Flask applicatie
 app = Flask(__name__)
-# Sta toe dat de frontend (die op een andere poort draait) met deze server kan praten
-CORS(app)  # Dit staat cross-origin requests toe voor ontwikkeling
+CORS(app)  
 
-# Dit is het adres waar Ollama op draait
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 
-# Persoonlijkheids-prompts voor verschillende karakters
 PERSONALITY_PROMPTS = {
     "default": "",
     "nerd": "Je bent nu een super nerd die heel enthousiast is over technologie en wetenschap. "
@@ -33,55 +28,55 @@ PERSONALITY_PROMPTS = {
     
     "kawaii": "Je bent nu super schattig en kawaii! Gebruik veel emoji's en vrolijke uitdrukkingen. "
               "Voeg '-chan' en '-kun' toe aan woorden. Gebruik veel uitroeptekens! "
-              "Maak geluidseffecten zoals 'uwu', 'nyaa~' en '(⁠◕⁠ᴗ⁠◕⁠✿)'."
+              "Maak geluidseffecten zoals 'uwu', 'nyaa~' en '(⁠◕⁠ᴗ⁠◕⁠✿)'.",
+    
+    "angry neighbour":  "Je bent een humeurige, snel geïrriteerde buurman die altijd wel iets te klagen heeft. "
+                        "Of het nu gaat om lawaai, de geur van barbecue, verkeerd geparkeerde auto's of rondrennende kinderen – "
+                        "je hebt altijd een (sarcastische) opmerking klaar. Soms dreig je met onzinnige klachten bij de gemeente, "
+                        "maar diep van binnen heb je een klein zwak voor gezelligheid, al zal je dat nooit toegeven. "
+                        "Gebruik veel overdreven drama en droge humor in je reacties."
+
 }
 
-# Dit is het eindpunt waar de frontend berichten naartoe stuurt
 @app.route('/chat', methods=['POST'])
 def chat():
     try:
-        # Haal het bericht en de persoonlijkheid op uit het verzoek
         data = request.json
         user_message = data.get('message', '')
         personality = data.get('personality', 'default')
         custom_personality = data.get('customPersonality', '')
-        model = data.get('model', 'llama2')  # Get the selected model from the request
+        model = data.get('model', '')
 
-        # Bepaal welke persoonlijkheids-prompt we moeten gebruiken
+        if not model:
+            return jsonify({"error": "Model is required"}), 400
+
         if personality == 'custom' and custom_personality:
             personality_prompt = custom_personality
         else:
             personality_prompt = PERSONALITY_PROMPTS.get(personality, '')
 
-        # Maak de volledige prompt met persoonlijkheid
         full_prompt = f"{personality_prompt}\n\nGebruiker: {user_message}"
-
         print(f"Persoonlijkheid: {personality}")
         print(f"Custom persoonlijkheid: {custom_personality if personality == 'custom' else 'N/A'}")
         print(f"Volledige prompt: {full_prompt}")
 
-        # Stuur het bericht door naar Ollama
         response = requests.post(
             OLLAMA_API_URL,
             json={
-                "model": model,  # Use the selected model
+                "model": model, 
                 "prompt": full_prompt,
                 "stream": False
             }
         )
 
-        # Als Ollama succesvol antwoordt
         if response.status_code == 200:
             ollama_response = response.json()
             return jsonify({"response": ollama_response.get('response', '')})
         else:
-            # Als er iets mis gaat met Ollama
             return jsonify({"error": "Fout bij communicatie met Ollama"}), 500
 
     except Exception as e:
-        # Als er een andere fout optreedt
         return jsonify({"error": str(e)}), 500
 
-# Start de Flask server als dit script direct wordt uitgevoerd
 if __name__ == '__main__':
-    app.run(debug=True)  # debug=True zorgt ervoor dat we handige foutmeldingen krijgen
+    app.run(debug=True)

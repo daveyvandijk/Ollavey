@@ -53,6 +53,7 @@
                             <option value="pirate">Pirate ☠️</option>
                             <option value="yoda">Yoda 🧙‍♂️</option>
                             <option value="kawaii">Kawaii (⁠◕⁠ᴗ⁠◕⁠✿)</option>
+                            <option value="angry neighbour">angry neighbour 👿</option>
                             <option value="custom">Custom ✨</option>
                         </select>
                     </div>
@@ -72,13 +73,15 @@
                 <button id="model-button">Model</button>
                 <div id="model-options" class="model-options" style="display: none;">
                     <div class="model-selector">
-                        <label for="model">Model:</label>
+                        <label for="model">Select Model:</label>
                         <select id="model">
                             <option value="llama2">Llama 2</option>
                             <option value="llama3">Llama 3</option>
                             <option value="llama2-uncensored:latest">Llama 2 Uncensored</option>
                             <!-- Add more models as needed -->
                         </select>
+                        <label for="custom-model">Or type custom model:</label>
+                        <input type="text" id="custom-model" placeholder="Enter custom model name">
                     </div>
                 </div>
             </div>
@@ -121,21 +124,18 @@
                 console.error('Toggle settings button not found!');
             }
 
-            // Load saved personalities from localStorage
             function loadSavedPersonalities() {
                 const savedPersonalities = JSON.parse(localStorage.getItem('savedPersonalities') || '[]');
                 
                 console.log('🔄 Loading Saved Personalities:', savedPersonalities);
                 
-                // Remove any existing custom saved personalities
                 const existingCustomOptions = personalitySelect.querySelectorAll('.custom-saved-personality');
                 existingCustomOptions.forEach(option => option.remove());
 
-                // Add saved personalities to the dropdown
                 savedPersonalities.forEach((personality, index) => {
                     const newOption = document.createElement('option');
-                    newOption.value = personality.prompt;  // Store the full prompt as value
-                    newOption.text = personality.name;     // Display name in dropdown
+                    newOption.value = personality.prompt;  
+                    newOption.text = personality.name;     
                     
                     newOption.classList.add('custom-saved-personality');
                     newOption.dataset.index = index;
@@ -147,7 +147,6 @@
                         dataIndex: newOption.dataset.index
                     });
                     
-                    // Insert before the 'custom' option
                     const customOption = personalitySelect.querySelector('option[value="custom"]');
                     personalitySelect.insertBefore(newOption, customOption);
                 });
@@ -161,7 +160,6 @@
                 );
             }
 
-            // Visibility debugging function
             function debugDeleteButtonVisibility() {
                 console.group('🔍 Delete Button Visibility Debug');
                 console.log('Delete Button Element:', deletePersonalityBtn);
@@ -176,7 +174,6 @@
                 console.groupEnd();
             }
 
-            // Personality selection change handler
             personalitySelect.addEventListener('change', (event) => {
                 const selectedIndex = personalitySelect.selectedIndex;
                 const selectedOption = personalitySelect.options[selectedIndex];
@@ -188,7 +185,6 @@
                     isCustomSaved: selectedOption.classList.contains('custom-saved-personality')
                 });
 
-                // Check if it's a saved custom personality
                 const isCustomSaved = selectedOption.classList.contains('custom-saved-personality');
                 
                 if (isCustomSaved) {
@@ -197,7 +193,6 @@
                     deletePersonalityBtn.style.display = 'block';
                     customPersonalityTextarea.value = selectedOption.value;
                     
-                    // Debug visibility
                     debugDeleteButtonVisibility();
                 } else if (personalitySelect.value === 'custom') {
                     console.log('🟡 Showing Custom Personality Input');
@@ -212,7 +207,6 @@
                 }
             });
 
-            // Modify delete button event to be more robust
             deletePersonalityBtn.addEventListener('click', () => {
                 const selectedIndex = personalitySelect.selectedIndex;
                 const selectedOption = personalitySelect.options[selectedIndex];
@@ -225,29 +219,16 @@
                     isCustomSavedClass: selectedOption.classList.contains('custom-saved-personality')
                 });
 
-                // Ensure it's a custom saved personality
                 if (selectedOption.classList.contains('custom-saved-personality')) {
                     const index = parseInt(selectedOption.dataset.index);
                     
-                    // Confirm deletion
                     if (confirm(`Weet je zeker dat je de persoonlijkheid "${selectedOption.text}" wilt verwijderen?`)) {
-                        // Get saved personalities
-                        const savedPersonalities = JSON.parse(localStorage.getItem('savedPersonalities') || '[]');
-                        
-                        console.log('🔍 Saved Personalities Before Deletion:', savedPersonalities);
-                        
-                        // Remove the personality at the specified index
+                        const savedPersonalities = JSON.parse(localStorage.getItem('savedPersonalities') || '[]');                        
+                        console.log('🔍 Saved Personalities Before Deletion:', savedPersonalities);                      
                         savedPersonalities.splice(index, 1);
-                        
                         console.log('🗑️ Saved Personalities After Deletion:', savedPersonalities);
-                        
-                        // Save updated personalities
                         localStorage.setItem('savedPersonalities', JSON.stringify(savedPersonalities));
-                        
-                        // Reload saved personalities
                         loadSavedPersonalities();
-                        
-                        // Reset to default
                         personalitySelect.value = 'default';
                         personalitySelect.dispatchEvent(new Event('change'));
                     }
@@ -257,16 +238,13 @@
                 }
             });
 
-            // Save custom personality
             savePersonalityBtn.addEventListener('click', () => {
                 const customPersonality = customPersonalityTextarea.value.trim();
                 
                 if (customPersonality) {
-                    // Check if we're editing an existing personality
                     const selectedOption = personalitySelect.options[personalitySelect.selectedIndex];
                     const isEditing = selectedOption.classList.contains('custom-saved-personality');
                     
-                    // Prompt user for a name
                     const personalityName = prompt(
                         isEditing 
                         ? 'Wijzig de naam van deze persoonlijkheid:' 
@@ -275,40 +253,26 @@
                     );
                     
                     if (personalityName) {
-                        // Get existing saved personalities
                         const savedPersonalities = JSON.parse(localStorage.getItem('savedPersonalities') || '[]');
                         
                         if (isEditing) {
-                            // Update existing personality
                             const index = parseInt(selectedOption.dataset.index);
                             savedPersonalities[index] = {
                                 name: personalityName,
                                 prompt: customPersonality
                             };
                         } else {
-                            // Add new personality
                             savedPersonalities.push({
                                 name: personalityName,
                                 prompt: customPersonality
                             });
                         }
                         
-                        // Save to localStorage
                         localStorage.setItem('savedPersonalities', JSON.stringify(savedPersonalities));
-                        
-                        // Reload saved personalities in dropdown
                         loadSavedPersonalities();
-                        
-                        // Select the personality
                         personalitySelect.value = customPersonality;
-                        
-                        // Hide custom personality container
                         customPersonalityContainer.style.display = 'none';
-                        
-                        // Clear textarea
                         customPersonalityTextarea.value = '';
-                        
-                        // Trigger change event
                         personalitySelect.dispatchEvent(new Event('change'));
                     }
                 } else {
@@ -316,7 +280,6 @@
                 }
             });
 
-            // Initial load of saved personalities
             loadSavedPersonalities();
         });
     </script>
